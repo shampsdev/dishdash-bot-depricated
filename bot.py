@@ -1,6 +1,8 @@
 import asyncio
 import logging
 import os
+import random
+import string
 import sys
 import threading
 
@@ -28,12 +30,13 @@ dp = Dispatcher()
 
 @dp.inline_query(F.query == "lobby")
 async def show_inline_menu(inline_query: InlineQuery):
+    url = get_lobby_url(59.957441, 30.308091)
     await inline_query.answer(
         [
             InlineQueryResultCachedPhoto(
                 type="photo",
                 photo_file_id="AgACAgIAAxkBAAM2ZkvEXswqVpcUzF1xU-gPypbTCU8AAs3ZMRu0wmFKp-1fNEa-3gIBAAMCAANzAAM1BA",
-                id="2",
+                id="".join(random.choices(string.ascii_letters + string.digits, k=10)),
                 input_message_content=InputTextMessageContent(
                     link_preview_options=LinkPreviewOptions(url="https://dishdash.ru"),
                     message_text="Подключайтесь с друзьями в лобби и выбирайте места!",
@@ -43,13 +46,14 @@ async def show_inline_menu(inline_query: InlineQuery):
                         [
                             InlineKeyboardButton(
                                 text="Зайти в лобби!",
-                                url=get_lobby_url(59.957441, 30.308091),
+                                url=url,
                             )
                         ]
                     ]
                 ),
             )
-        ]
+        ],
+        cache_time=1,
     )
 
 
