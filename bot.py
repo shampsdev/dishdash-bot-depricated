@@ -1,0 +1,72 @@
+import asyncio
+import logging
+import os
+import sys
+import threading
+
+from aiogram import Bot, Dispatcher, F
+from aiogram.filters import Command
+from aiogram.types import (
+    InlineKeyboardButton,
+    InlineKeyboardMarkup,
+    InlineQuery,
+    InlineQueryResultCachedPhoto,
+    InlineQueryResultPhoto,
+    InputTextMessageContent,
+    LinkPreviewOptions,
+    Message,
+)
+from dotenv import load_dotenv
+
+from api import get_lobby_url
+
+load_dotenv()
+
+bot = Bot(os.getenv("API_TOKEN"))
+dp = Dispatcher()
+
+
+@dp.inline_query(F.query == "lobby")
+async def show_inline_menu(inline_query: InlineQuery):
+    await inline_query.answer(
+        [
+            InlineQueryResultCachedPhoto(
+                type="photo",
+                photo_file_id="AgACAgIAAxkBAAM2ZkvEXswqVpcUzF1xU-gPypbTCU8AAs3ZMRu0wmFKp-1fNEa-3gIBAAMCAANzAAM1BA",
+                id="2",
+                input_message_content=InputTextMessageContent(
+                    link_preview_options=LinkPreviewOptions(url="https://dishdash.ru"),
+                    message_text="Подключайтесь с друзьями в лобби и выбирайте места!",
+                ),
+                reply_markup=InlineKeyboardMarkup(
+                    inline_keyboard=[
+                        [
+                            InlineKeyboardButton(
+                                text="Зайти в лобби!",
+                                url=get_lobby_url(59.957441, 30.308091),
+                            )
+                        ]
+                    ]
+                ),
+            )
+        ]
+    )
+
+
+@dp.message()
+async def all(message: Message):
+    # print(message)
+    await message.answer("Не знаю что ответить")
+
+
+async def polling_main() -> None:
+    await dp.start_polling(bot)
+
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO, stream=sys.stdout)
+
+    try:
+        asyncio.run(polling_main())
+    except (KeyboardInterrupt, SystemExit):
+        logging.info("Bot stopped!")
