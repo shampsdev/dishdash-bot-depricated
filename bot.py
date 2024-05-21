@@ -26,9 +26,10 @@ load_dotenv()
 
 bot = Bot(os.getenv("API_TOKEN"))
 dp = Dispatcher()
+wb_app_url = "t.me/dishdash_bot/main_site"
 
 
-@dp.inline_query(F.query == "lobby")
+@dp.inline_query(F.query == "start")
 async def show_inline_menu(inline_query: InlineQuery):
     url = get_lobby_url(59.957441, 30.308091)
     await inline_query.answer(
@@ -45,9 +46,13 @@ async def show_inline_menu(inline_query: InlineQuery):
                     inline_keyboard=[
                         [
                             InlineKeyboardButton(
-                                text="Зайти в лобби!",
+                                text="Лобби",
                                 url=url,
-                            )
+                            ),
+                            InlineKeyboardButton(
+                                text="Приложение",
+                                url=wb_app_url,
+                            ),
                         ]
                     ]
                 ),
