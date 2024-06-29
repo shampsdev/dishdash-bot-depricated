@@ -15,18 +15,16 @@ def get_lobby_url(latitude, longitude):
     Возвращает:
     str: URL или сообщение об ошибке.
     """
-    url = "https://dishdash.ru/api/v1/lobby"
-    location_data = json.dumps({"lat": latitude, "lng": longitude})
-
-    data = {"location": location_data}
+    url = "https://dishdash.ru/api/v1/lobbies"
+    data = {"location": {"lat": latitude, "lon": longitude}}
 
     response = requests.post(url, json=data)
 
-    if response.status_code == 201:
+    if response.status_code == 200:
         response_data = response.json()
         lobby_id = response_data.get("id")
         if lobby_id is not None:
-            return f"https://dishdash.ru/swipe/{lobby_id}"
+            return f"https://bot.dishdash.ru/{lobby_id}"
         else:
             return "ID не найден в ответе API."
     else:
