@@ -6,8 +6,8 @@ import string
 import sys
 import threading
 
-from aiogram import Bot, Dispatcher, F
-from aiogram.filters import Command
+from aiogram import Bot, Dispatcher, F, html
+from aiogram.filters import Command, CommandStart
 from aiogram.types import (
     InlineKeyboardButton,
     InlineKeyboardMarkup,
@@ -62,10 +62,29 @@ async def show_inline_menu(inline_query: InlineQuery):
     )
 
 
-@dp.message()
-async def all(message: Message):
-    # print(message)
-    await message.answer("Не знаю что ответить")
+@dp.message(CommandStart())
+async def command_start_handler(message: Message) -> None:
+    """
+    Обработка команды `/start`
+    """
+    await message.answer(
+        f"""
+        Добро пожаловать, {html.bold(message.from_user.full_name)}!
+        
+Используйте DishDash, чтобы легко и быстро выбрать место для встречи в компании. Упомяните бота в чате и введите <code>@dishdash_bot start</code> для создания лобби.
+        
+Бот <a href='https://dishdash.ru'>DishDash</a> разработан командой <a href='https://t.me/+4l8DChDSxMQxNWUy '>\"Шампиньоны\"</a>
+        """,
+        parse_mode="HTML",
+    )
+
+
+@dp.message(lambda message: True)
+async def default_message_handler(message: Message) -> None:
+    """
+    Обработка всех сообщений `/start`
+    """
+    await message.answer("Чтобы начать, пожалуйста, используйте команду /start")
 
 
 async def polling_main() -> None:
