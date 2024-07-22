@@ -1,10 +1,15 @@
-FROM python:3.9-slim
+FROM node:14
 
 WORKDIR /app
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY package*.json ./
+
+RUN npm install
 
 COPY . .
 
-CMD ["python", "bot.py"]
+COPY .env .env
+
+EXPOSE ${PORT}
+
+CMD ["npm", "start"]

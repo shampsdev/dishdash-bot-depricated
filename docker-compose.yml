@@ -1,9 +1,11 @@
-version: '3.8'
+version: '3'
 services:
-  telegram_bot:
+  app:
     build: .
+    ports:
+      - "${PORT}:${PORT}"
     volumes:
       - .:/app
+      - /app/node_modules
     env_file:
       - .env
-    restart: always
