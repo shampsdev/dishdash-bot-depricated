@@ -9,7 +9,7 @@ require('dotenv').config()
 
 var app = express();
 
-app.use(cookieParser(process.env.dashToken));
+app.use(cookieParser(process.env.bot_token));
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

@@ -5,7 +5,8 @@ if(process.env.develop) ngrok = process.env.ngrok2;
 
 const host = `dash`;
 
-const token = process.env.dashToken;
+const token = process.env.bot_token;
+const bot_username = process.env.bot_username;
 
 var express =   require('express');
 var router =    express.Router();
@@ -35,19 +36,6 @@ const {
     sendMessage2,
     getUser,
 } = require('./methods.js');
-
-
-const {
-    initializeApp,
-    applicationDefault,
-    cert
-} = require('firebase-admin/app');
-
-const {
-    getFirestore,
-    Timestamp,
-    FieldValue
-} = require('firebase-admin/firestore');
 
 
 setTimeout(function () {
@@ -312,7 +300,7 @@ router.post(`/hook`, (req, res) => {
                             reply_markup: {
                                 inline_keyboard:[[{
                                     text: 'Some app',
-                                    url: `https://t.me/dish_dash_bot/app?startapp=${data.data.room_id}`
+                                    url: `https://t.me/${bot_username}/app?startapp=${data.data.room_id}`
                                 }]]
                             }
                         }]
