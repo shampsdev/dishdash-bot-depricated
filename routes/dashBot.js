@@ -52,9 +52,7 @@ function alertAdmins(mess) {
 
 router.get(`/app`, (req, res) => {
   // тут будем перекидывать на реакт
-  res.render(`${host}/app`, {
-    room: req.query.tgWebAppStartParam,
-  });
+  res.redirect(`http://172.20.10.3:5173/${req.query.tgWebAppStartParam}`);
 });
 
 router.post(`/hook`, (req, res) => {
@@ -86,9 +84,13 @@ router.post(`/hook`, (req, res) => {
     } else {
       let coords = q.location;
       axios
-        .get(
-          `https://dishdash.f-dyakonov.ru/generateRoomID?longitude=${coords.longitude}&latitude=${coords.latitude}`
-        )
+        .post(`https://dishdash.ru/api/v1/lobbies/find`, {
+          dist: 10,
+          location: {
+            lat: coords.latitude,
+            lon: coords.longitude,
+          },
+        })
         .then((data) => {
           sendMessage2(
             {
@@ -108,7 +110,7 @@ router.post(`/hook`, (req, res) => {
                       [
                         {
                           text: 'Some app',
-                          url: `https://t.me/${bot_username}/app?startapp=${data.data.room_id}`,
+                          url: `https://t.me/${bot_username}/app?startapp=${data.data.id}`,
                         },
                       ],
                     ],
