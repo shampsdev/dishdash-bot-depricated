@@ -10,6 +10,4 @@ COPY . .
 
 COPY .env .env
 
-EXPOSE ${PORT}
-
 CMD ["npm", "start"]
