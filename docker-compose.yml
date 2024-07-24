@@ -12,7 +12,7 @@ services:
       - "traefik.http.routers.node-bot.rule=Host(`${host_url}`) && PathPrefix(`/`)"
       - "traefik.http.services.node-bot.loadbalancer.server.port=${PORT}"
       - "traefik.http.routers.node-bot.priority=1"
-      - "traefik.http.routers.node-bot.tls.certresolver=le" 
+      - "traefik.http.routers.node-bot.tls.certresolver=letsEncrypt" 
       - "traefik.http.routers.node-bot.entrypoints=https" 
     networks:
       - traefik
