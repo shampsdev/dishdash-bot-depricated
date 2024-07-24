@@ -1,6 +1,6 @@
-let ngrok = process.env.ngrok;
-
-if (process.env.develop) ngrok = process.env.ngrok2;
+let bot_url = process.env.bot_url;
+let api_url = process.env.api_url;
+let frontend_url = process.env.frontend_url;
 
 const host = `dash`;
 
@@ -26,15 +26,15 @@ router.use(
 
 const { devlog, handleError } = require('./common.js');
 
-const { sendMessage2 } = require('./methods.js');
+const { sendMessage, getUserProfilePicture } = require('./methods.js');
 
 setTimeout(function () {
   axios
     .get(
-      `https://api.telegram.org/bot${token}/setWebHook?url=${ngrok}/${host}/hook`
+      `https://api.telegram.org/bot${token}/setWebHook?url=${bot_url}/${host}/hook`
     )
     .then(() => {
-      console.log(`${host} hook set on ${ngrok}`);
+      console.log(`${host} hook set on ${bot_url}`);
     })
     .catch((err) => {
       handleError(err);
@@ -52,7 +52,13 @@ function alertAdmins(mess) {
 
 router.get(`/app`, (req, res) => {
   // тут будем перекидывать на реакт
-  res.redirect(`http://172.20.10.3:5173/${req.query.tgWebAppStartParam}`);
+  res.redirect(`${frontend_url}/${req.query.tgWebAppStartParam}`);
+});
+
+router.get(`/avatar`, (req, res) => {
+  res.json({
+    url: getUserProfilePicture(req.params.user_id),
+  });
 });
 
 router.post(`/hook`, (req, res) => {
@@ -64,7 +70,7 @@ router.post(`/hook`, (req, res) => {
     let q = req.body.inline_query;
     if (!q.location) {
       // вежливый отказ
-      sendMessage2(
+      sendMessage(
         {
           inline_query_id: q.id,
           results: [
@@ -84,7 +90,7 @@ router.post(`/hook`, (req, res) => {
     } else {
       let coords = q.location;
       axios
-        .post(`https://dishdash.ru/api/v1/lobbies/find`, {
+        .post(`${api_url}/api/v1/lobbies/find`, {
           dist: 10,
           location: {
             lat: coords.latitude,
@@ -92,19 +98,19 @@ router.post(`/hook`, (req, res) => {
           },
         })
         .then((data) => {
-          sendMessage2(
+          sendMessage(
             {
               inline_query_id: q.id,
               results: [
                 {
                   type: `photo`,
                   id: `app2`,
-                  photo_url: `${ngrok}/images/dash/cover.jpg`,
-                  title: data.data.room_id,
-                  description: `Приглашение в комнату ${data.data.room_id}`,
+                  photo_url: `${bot_url}/images/dash/cover.jpg`,
+                  title: data.data.id,
+                  description: `Приглашение в комнату ${data.data.id}`,
                   is_personal: false,
-                  caption: `Не знаете, куда пойти? Давайте найдем, с кем! (инвайт в комнату ${data.data.room_id})`,
-                  thumbnail_url: `${ngrok}/dash/cover.jpg`,
+                  caption: `Не знаете, куда пойти? Давайте найдем, с кем! (инвайт в комнату ${data.data.id})`,
+                  thumbnail_url: `${bot_url}/dash/cover.jpg`,
                   reply_markup: {
                     inline_keyboard: [
                       [
@@ -129,7 +135,7 @@ router.post(`/hook`, (req, res) => {
             text: err.message,
           });
 
-          sendMessage2(
+          sendMessage(
             {
               inline_query_id: q.id,
               results: [

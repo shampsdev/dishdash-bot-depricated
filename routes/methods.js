@@ -1,55 +1,79 @@
 var axios = require('axios');
 
-function getUser(id,udb){
-    return udb.doc(id.toString()).get().then(u=>{
-        let t = u.data()
-            t.id = u.id;
-        return t
-    }).catch(err=>{})
-}
-function sendMessage2(m, ep, channel, messages, extra) {
-    
-    return axios.post('https://api.telegram.org/bot' + channel + '/' + (ep ? ep : 'sendMessage'), m, {
+function sendMessage(m, ep, channel, messages, extra) {
+  return axios
+    .post(
+      'https://api.telegram.org/bot' +
+        channel +
+        '/' +
+        (ep ? ep : 'sendMessage'),
+      m,
+      {
         headers: {
-            'Content-Type': 'application/json'
-        }
-    }).then(telres => {
-        
-        if(messages && telres.data.ok){
+          'Content-Type': 'application/json',
+        },
+      }
+    )
+    .then((telres) => {
+      if (messages && telres.data.ok) {
+        let toLog = {
+          createdAt: new Date(),
+          user: +m.chat_id,
+          text: m.text || m.caption || null,
+          isReply: true,
+          photo: m.photo || null,
+          messageId: telres.data.result.message_id,
+        };
 
-            let toLog =  {
-                createdAt:  new Date(),
-                user:       +m.chat_id,
-                text:       m.text || m.caption || null,
-                isReply:    true,
-                photo:      m.photo || null,
-                messageId:  telres.data.result.message_id
-            }
+        if (extra) Object.keys(extra).forEach((f) => (toLog[f] = extra[f]));
 
-            if(extra) Object.keys(extra).forEach(f=>toLog[f]=extra[f])
+        devlog(toLog);
+      }
 
-            devlog(toLog)
-            
-            // ЗДЕСЬ ДОЛЖНО БЫТЬ ЛОГИРОВАНИЕ СООБЩЕНИЕ И ОБРАТНАЯ СВЯЗЬ АДМИНАМ
-            
-            // messages.add(toLog).then(()=>devlog(`logged ${(toLog.text || '').slice(0,10)} to ${toLog.user}`)).catch(err=>{
-            //     alertMe({
-            //         text: `Ошибка логирования: ${err.message}`
-            //     })
-            // })
-        }
-        
-        return telres.data;
-        
-    }).catch(err => {
-        console.log(err)
-        return false
-        
-        // res.sendStatus(500);
-        // throw new Error(err);
+      return telres.data;
     })
+    .catch((err) => {
+      console.log(err);
+      return false;
+    });
 }
 
+function getUserProfilePicture(userId, channel) {
+  return axios
+    .get(`https://api.telegram.org/bot${channel}/getUserProfilePhotos`, {
+      params: {
+        user_id: userId,
+        limit: 1,
+      },
+    })
+    .then((response) => {
+      if (response.data.ok && response.data.result.total_count > 0) {
+        const fileId = response.data.result.photos[0][0].file_id;
+        return axios.get(`https://api.telegram.org/bot${channel}/getFile`, {
+          params: {
+            file_id: fileId,
+          },
+        });
+      } else {
+        throw new Error('No profile picture found');
+      }
+    })
+    .then((response) => {
+      if (response.data.ok) {
+        const filePath = response.data.result.file_path;
+        const fileUrl = `https://api.telegram.org/file/bot${channel}/${filePath}`;
+        return axios.get(fileUrl, { responseType: 'arraybuffer' });
+      } else {
+        throw new Error('Failed to get file URL');
+      }
+    })
+    .then((response) => {
+      return Buffer.from(response.data, 'binary');
+    })
+    .catch((err) => {
+      console.log(err);
+      return false;
+    });
+}
 
-module.exports = {getUser,sendMessage2};
-
+module.exports = { sendMessage, getUserProfilePicture };
