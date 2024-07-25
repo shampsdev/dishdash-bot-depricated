@@ -66,6 +66,50 @@ router.post(`/hook`, (req, res) => {
 
   devlog(JSON.stringify(req.body, null, 2));
 
+  if (req.body.message) {
+    let message = req.body.message;
+    let chat_id = message.chat.id;
+
+    if (message.text) {
+      let text = message.text;
+
+      if (text === '/start') {
+        let fullName = message.from.first_name;
+        if (message.from.last_name) {
+          fullName += ` ${message.from.last_name}`;
+        }
+
+        sendMessage(
+          {
+            chat_id: chat_id,
+            text: `Добро пожаловать, <b>${fullName}</b>!\n\nИспользуйте DishDash, чтобы легко и быстро выбрать место для встречи в компании. Упомяните бота в чате и введите <code>@dishdash_bot start</code> для создания лобби.\n\nБот <a href='https://dishdash.ru'>DishDash</a> разработан командой <a href='https://t.me/+4l8DChDSxMQxNWUy'>\"Шампиньоны\"</a>`,
+            parse_mode: 'HTML',
+          },
+          'sendMessage',
+          token
+        );
+      } else if (text === '/help') {
+        sendMessage(
+          {
+            chat_id: chat_id,
+            text: 'Доступные команды:\n/start - Запуск бота\n/help - Справка',
+          },
+          'sendMessage',
+          token
+        );
+      } else {
+        sendMessage(
+          {
+            chat_id: chat_id,
+            text: 'Извините, я не понимаю эту команду.',
+          },
+          'sendMessage',
+          token
+        );
+      }
+    }
+  } 
+
   if (req.body.inline_query) {
     let q = req.body.inline_query;
     if (!q.location) {
@@ -77,9 +121,9 @@ router.post(`/hook`, (req, res) => {
             {
               type: `article`,
               id: `noLocation`,
-              title: `Phones only`,
+              title: `Бот доступен только с телефона!`,
               input_message_content: {
-                message_text: `Эта штука будет работать только с телефона. Увых.`,
+                message_text: `DishDash работает только при доступе к координатам! Повторите с телефона.`,
               },
             },
           ],
@@ -109,13 +153,13 @@ router.post(`/hook`, (req, res) => {
                   title: data.data.id,
                   description: `Приглашение в комнату ${data.data.id}`,
                   is_personal: false,
-                  caption: `Не знаете, куда пойти? Давайте найдем, с кем! (инвайт в комнату ${data.data.id})`,
+                  caption: `Не знаете, куда пойти? Давайте подберем вам место! (инвайт в комнату ${data.data.id})`,
                   thumbnail_url: `${bot_url}/dash/cover.jpg`,
                   reply_markup: {
                     inline_keyboard: [
                       [
                         {
-                          text: 'Some app',
+                          text: 'В лобби!',
                           url: `https://t.me/${bot_username}/app?startapp=${data.data.id}`,
                         },
                       ],
