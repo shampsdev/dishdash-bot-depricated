@@ -42,12 +42,3 @@ jobs:
           tags: |
             shampiniony/dishdash-bot:latest
             shampiniony/dishdash-bot:${{ env.COMMIT_SHORT_SHA }}
-          secrets: |
-            API_URL=${{ secrets.API_URL }}
-            BOT_TOKEN=${{ secrets.BOT_TOKEN }}
-            BOT_URL=${{ secrets.BOT_URL }}
-            BOT_USERNAME=${{ secrets.BOT_USERNAME }}
-            DEVELOP=${{ secrets.DEVELOP }}
-            FRONTEND_URL=${{ secrets.FRONTEND_URL }}
-            HOST_URL=${{ secrets.HOST_URL }}
-            PORT=${{ secrets.PORT }}
