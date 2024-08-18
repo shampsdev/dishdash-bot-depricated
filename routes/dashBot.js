@@ -78,7 +78,36 @@ router.post(`/hook`, (req, res) => {
   
     if (message.text) {
       let text = message.text;
+
+      if (reportMode) {
+        reportMode = false;
   
+        if (report_chat_id === undefined) {
+          console.log("`report_chat_id` is undefined. Chech envs to turn on reports.")
+        } else {
+          let reportTime = new Date().toLocaleString();
+  
+          sendMessage(
+            {
+              chat_id: reportChatId,
+              text: `⚠️ <b>Репорт от пользователя:</b>\n\n<b>Имя:</b> ${message.from.first_name} ${message.from.last_name || ''}\n<b>Юзернейм:</b> @${message.from.username || 'нет юзернейма'}\n<b>Chat ID:</b> ${chat_id}\n<b>Время обращения:</b> ${reportTime}\n\n<b>Сообщение:</b>\n${text}`,
+              parse_mode: 'HTML',
+            },
+            'sendMessage',
+            token
+          );
+  
+          sendMessage(
+            {
+              chat_id: chat_id,
+              text: 'Ваш репорт был успешно отправлен администрации.',
+            },
+            'sendMessage',
+            token
+          );
+        }
+      }
+
       if (text === '/start') {
         let fullName = message.from.first_name;
         if (message.from.last_name) {
@@ -116,43 +145,14 @@ router.post(`/hook`, (req, res) => {
         return; // Завершаем обработку, чтобы не продолжать дальше
       } else {
         // Если включен режим репорта, пересылаем сообщение
-        if (reportMode) {
-          reportMode = false;
-
-          if (report_chat_id === undefined) {
-            console.log("`report_chat_id` is undefined. Chech envs to turn on reports.")
-          } else {
-            let reportTime = new Date().toLocaleString();
-
-            sendMessage(
-              {
-                chat_id: reportChatId,
-                text: `⚠️ <b>Репорт от пользователя:</b>\n\n<b>Имя:</b> ${message.from.first_name} ${message.from.last_name || ''}\n<b>Юзернейм:</b> @${message.from.username || 'нет юзернейма'}\n<b>Chat ID:</b> ${chat_id}\n<b>Время обращения:</b> ${reportTime}\n\n<b>Сообщение:</b>\n${text}`,
-                parse_mode: 'HTML',
-              },
-              'sendMessage',
-              token
-            );
-    
-            sendMessage(
-              {
-                chat_id: chat_id,
-                text: 'Ваш репорт был успешно отправлен администрации.',
-              },
-              'sendMessage',
-              token
-            );
-          }
-        } else {
-          sendMessage(
-            {
-              chat_id: chat_id,
-              text: 'Извините, я не понимаю эту команду.',
-            },
-            'sendMessage',
-            token
-          );
-        }
+        sendMessage(
+          {
+            chat_id: chat_id,
+            text: 'Извините, я не понимаю эту команду.',
+          },
+          'sendMessage',
+          token
+        );
       }
     }
   }
