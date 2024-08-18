@@ -12,6 +12,9 @@ var express = require('express');
 var router = express.Router();
 var axios = require('axios');
 
+// Very bad practice, but works. Just put all of the bot stuff in another file.
+let sessionStates = {};
+
 const fileUpload = require('express-fileupload');
 
 router.use(
@@ -63,7 +66,6 @@ router.get(`/avatar`, (req, res) => {
 });
 
 router.post(`/hook`, (req, res) => {
-  let sessionStates = {}; // Объект для хранения состояния сессий
   let reportChatId = report_chat_id;
 
   res.sendStatus(200);
@@ -73,6 +75,8 @@ router.post(`/hook`, (req, res) => {
     let message = req.body.message;
     let chat_id = message.chat.id;
   
+    console.log(sessionStates[chat_id])
+
     if (!sessionStates[chat_id]) {
       sessionStates[chat_id] = { reportMode: false };
     }
