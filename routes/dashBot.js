@@ -81,12 +81,12 @@ router.post(`/hook`, (req, res) => {
 
       if (reportMode) {
         reportMode = false;
-  
+    
         if (report_chat_id === undefined) {
-          console.log("`report_chat_id` is undefined. Chech envs to turn on reports.")
+          console.log("`report_chat_id` is undefined. Check envs to turn on reports.");
         } else {
           let reportTime = new Date().toLocaleString();
-  
+    
           sendMessage(
             {
               chat_id: reportChatId,
@@ -96,7 +96,7 @@ router.post(`/hook`, (req, res) => {
             'sendMessage',
             token
           );
-  
+    
           sendMessage(
             {
               chat_id: chat_id,
@@ -106,9 +106,7 @@ router.post(`/hook`, (req, res) => {
             token
           );
         }
-      }
-
-      if (text === '/start') {
+      } else if (text === '/start') {
         let fullName = message.from.first_name;
         if (message.from.last_name) {
           fullName += ` ${message.from.last_name}`;
@@ -127,13 +125,13 @@ router.post(`/hook`, (req, res) => {
         sendMessage(
           {
             chat_id: chat_id,
-            text: 'Доступные команды:\n/start - Запуск бота\n/help - Справка',
+            text: 'Доступные команды:\n/start - Запуск бота\n/help - Справка\n/report - сообщить о баге/проблеме',
           },
           'sendMessage',
           token
         );
       } else if (text === '/report') {
-        reportMode = true; // Включаем режим репорта
+        reportMode = true;
         sendMessage(
           {
             chat_id: chat_id,
@@ -142,9 +140,8 @@ router.post(`/hook`, (req, res) => {
           'sendMessage',
           token
         );
-        return; // Завершаем обработку, чтобы не продолжать дальше
+        return;
       } else {
-        // Если включен режим репорта, пересылаем сообщение
         sendMessage(
           {
             chat_id: chat_id,
