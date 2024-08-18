@@ -69,9 +69,6 @@ router.post(`/hook`, (req, res) => {
   res.sendStatus(200);
   devlog(JSON.stringify(req.body, null, 2));
 
-
-  devlog(JSON.stringify(req.body, null, 2));
-
   if (req.body.message) {
     let message = req.body.message;
     let chat_id = message.chat.id;
@@ -80,37 +77,39 @@ router.post(`/hook`, (req, res) => {
       sessionStates[chat_id] = { reportMode: false };
     }
 
+    let currentSession = sessionStates[chat_id];
+
     if (message.text) {
       let text = message.text;
 
-      if (sessionStates[chat_id].reportMode) {
-      sessionStates[chat_id].reportMode = false;
+      if (currentSession.reportMode) {
+        currentSession.reportMode = false;
 
-      if (report_chat_id === undefined) {
-        console.log("`report_chat_id` is undefined. Check envs to turn on reports.");
-      } else {
-        let reportTime = new Date().toLocaleString();
+        if (report_chat_id === undefined) {
+          console.log("`report_chat_id` is undefined. Check envs to turn on reports.");
+        } else {
+          let reportTime = new Date().toLocaleString();
 
-        sendMessage(
-          {
-            chat_id: reportChatId,
-            text: `⚠️ <b>Репорт от пользователя:</b>\n\n<b>Имя:</b> ${message.from.first_name} ${message.from.last_name || ''}\n<b>Юзернейм:</b> @${message.from.username || 'нет юзернейма'}\n<b>Chat ID:</b> ${chat_id}\n<b>Время обращения:</b> ${reportTime}\n\n<b>Сообщение:</b>\n${text}`,
-            parse_mode: 'HTML',
-          },
-          'sendMessage',
-          token
-        );
+          sendMessage(
+            {
+              chat_id: reportChatId,
+              text: `⚠️ <b>Репорт от пользователя:</b>\n\n<b>Имя:</b> ${message.from.first_name} ${message.from.last_name || ''}\n<b>Юзернейм:</b> @${message.from.username || 'нет юзернейма'}\n<b>Chat ID:</b> ${chat_id}\n<b>Время обращения:</b> ${reportTime}\n\n<b>Сообщение:</b>\n${text}`,
+              parse_mode: 'HTML',
+            },
+            'sendMessage',
+            token
+          );
 
-        sendMessage(
-          {
-            chat_id: chat_id,
-            text: 'Ваш репорт был успешно отправлен администрации.',
-          },
-          'sendMessage',
-          token
-        );
-      }
-    } else if (text === '/start') {
+          sendMessage(
+            {
+              chat_id: chat_id,
+              text: 'Ваш репорт был успешно отправлен администрации.',
+            },
+            'sendMessage',
+            token
+          );
+        }
+      } else if (text === '/start') {
         let fullName = message.from.first_name;
         if (message.from.last_name) {
           fullName += ` ${message.from.last_name}`;
@@ -135,7 +134,7 @@ router.post(`/hook`, (req, res) => {
           token
         );
       } else if (text === '/report') {
-        sessionStates[chat_id].reportMode = true; // Включаем режим репорта для данного чата
+        currentSession.reportMode = true;
         sendMessage(
           {
             chat_id: chat_id,
