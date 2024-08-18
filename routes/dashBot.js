@@ -140,7 +140,7 @@ router.post(`/hook`, (req, res) => {
           'sendMessage',
           token
         );
-      } else {
+      } else if (!reportMode) {
         sendMessage(
           {
             chat_id: chat_id,
