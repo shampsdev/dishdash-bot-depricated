@@ -140,7 +140,6 @@ router.post(`/hook`, (req, res) => {
           'sendMessage',
           token
         );
-        return;
       } else {
         sendMessage(
           {
