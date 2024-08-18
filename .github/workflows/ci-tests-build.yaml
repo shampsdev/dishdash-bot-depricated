@@ -1,0 +1,22 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main", "dev" ]
+  pull_request:
+    branches: [ "main", "dev" ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-22.04
+
+    steps:
+    - name: Set short git commit SHA
+      run: |
+        echo "CI test complited"
+
+    # - uses: actions/checkout@v4
+    # - name: Build docker image
+    #   run: docker-compose -f docker-compose.yaml build
