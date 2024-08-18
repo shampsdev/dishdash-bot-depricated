@@ -140,16 +140,17 @@ router.post(`/hook`, (req, res) => {
           'sendMessage',
           token
         );
-      } else if (!reportMode) {
-        sendMessage(
-          {
-            chat_id: chat_id,
-            text: 'Извините, я не понимаю эту команду.',
-          },
-          'sendMessage',
-          token
-        );
-      }
+      } 
+      // else if (!reportMode) {
+      //   sendMessage(
+      //     {
+      //       chat_id: chat_id,
+      //       text: 'Извините, я не понимаю эту команду.',
+      //     },
+      //     'sendMessage',
+      //     token
+      //   );
+      // }
     }
   }
    
