@@ -6,6 +6,7 @@ const host = `dash`;
 
 const token = process.env.bot_token;
 const bot_username = process.env.bot_username;
+const report_chat_id = process.env.report_chat_id; // ID чата для пересылки сообщений
 
 var express = require('express');
 var router = express.Router();
@@ -62,27 +63,32 @@ router.get(`/avatar`, (req, res) => {
 });
 
 router.post(`/hook`, (req, res) => {
+  let reportMode = false; // Переменная для отслеживания режима репорта
+  let reportChatId = report_chat_id;
+
   res.sendStatus(200);
+  devlog(JSON.stringify(req.body, null, 2));
+
 
   devlog(JSON.stringify(req.body, null, 2));
 
   if (req.body.message) {
     let message = req.body.message;
     let chat_id = message.chat.id;
-
+  
     if (message.text) {
       let text = message.text;
-
+  
       if (text === '/start') {
         let fullName = message.from.first_name;
         if (message.from.last_name) {
           fullName += ` ${message.from.last_name}`;
         }
-
+  
         sendMessage(
           {
             chat_id: chat_id,
-            text: `Добро пожаловать, <b>${fullName}</b>!\n\nИспользуйте DishDash, чтобы легко и быстро выбрать место для встречи в компании. Упомяните бота в чате и введите <code>@dishdash_bot start</code> для создания лобби.\n\nБот <a href='https://dishdash.ru'>DishDash</a> разработан командой <a href='https://t.me/+4l8DChDSxMQxNWUy'>\"Шампиньоны\"</a>`,
+            text: `Добро пожаловать, <b>${fullName}</b>!\n\nИспользуйте DishDash, чтобы легко и быстро выбрать место для встречи в компании. Упомяните бота в чате и введите <code>@dishdash_bot start</code> для создания лобби.\n\nБот <a href='https://dishdash.ru'>DishDash</a> разработан командой <a href='https://t.me/+4l8DChDSxMQxNWUy'>\"Шампиньоны\"</a>.`,
             parse_mode: 'HTML',
           },
           'sendMessage',
@@ -97,18 +103,60 @@ router.post(`/hook`, (req, res) => {
           'sendMessage',
           token
         );
-      } else {
+      } else if (text === '/report') {
+        reportMode = true; // Включаем режим репорта
         sendMessage(
           {
             chat_id: chat_id,
-            text: 'Извините, я не понимаю эту команду.',
+            text: 'Теперь отправьте сообщение, которое вы хотите сообщить администрации.',
           },
           'sendMessage',
           token
         );
+        return; // Завершаем обработку, чтобы не продолжать дальше
+      } else {
+        // Если включен режим репорта, пересылаем сообщение
+        if (reportMode) {
+          reportMode = false;
+
+          if (report_chat_id === undefined) {
+            console.log("`report_chat_id` is undefined. Chech envs to turn on reports.")
+          } else {
+            let reportTime = new Date().toLocaleString();
+
+            sendMessage(
+              {
+                chat_id: reportChatId,
+                text: `⚠️ <b>Репорт от пользователя:</b>\n\n<b>Имя:</b> ${message.from.first_name} ${message.from.last_name || ''}\n<b>Юзернейм:</b> @${message.from.username || 'нет юзернейма'}\n<b>Chat ID:</b> ${chat_id}\n<b>Время обращения:</b> ${reportTime}\n\n<b>Сообщение:</b>\n${text}`,
+                parse_mode: 'HTML',
+              },
+              'sendMessage',
+              token
+            );
+    
+            sendMessage(
+              {
+                chat_id: chat_id,
+                text: 'Ваш репорт был успешно отправлен администрации.',
+              },
+              'sendMessage',
+              token
+            );
+          }
+        } else {
+          sendMessage(
+            {
+              chat_id: chat_id,
+              text: 'Извините, я не понимаю эту команду.',
+            },
+            'sendMessage',
+            token
+          );
+        }
       }
     }
-  } 
+  }
+   
 
   if (req.body.inline_query) {
     let q = req.body.inline_query;
