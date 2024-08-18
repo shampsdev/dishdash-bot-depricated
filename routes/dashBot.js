@@ -92,7 +92,16 @@ router.post(`/hook`, (req, res) => {
         sendMessage(
           {
             chat_id: chat_id,
-            text: 'Доступные команды:\n/start - Запуск бота\n/help - Справка',
+            text: 'Доступные команды:\n/start - Запуск бота\n/report — Баг репорт\n/help - Справка',
+          },
+          'sendMessage',
+          token
+        );
+      } else if (text === '/report') {
+        sendMessage(
+          {
+            chat_id: chat_id,
+            text: 'Извините, я не понимаю эту команду.',
           },
           'sendMessage',
           token

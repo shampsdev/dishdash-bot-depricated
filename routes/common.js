@@ -30,13 +30,14 @@ function handleQuery(col,byDate,byName){
     if(byName){
         res = res.sort((a,b)=>sortableText(b.name) > sortableText(a.name) ? -1 : 0)
     }
-    // devlog(res)
     return res
 }
 
 function devlog(v) {
     if (process.env.develop == 'true') {
         console.log(v)
+    } else {
+        // push to telegram notifications
     }
 }
 
