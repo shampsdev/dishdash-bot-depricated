@@ -1,50 +1,50 @@
-function handleError(err,res){
+// function handleError(err,res){
     
-    console.log(err)
+//     console.log(err)
     
-    if(res) res.status(500).send(err.message)
+//     if(res) res.status(500).send(err.message)
     
-    alertMe({
-        text: `Ошибка! ${err.message}`
-    })
-}
+//     alertMe({
+//         text: `Ошибка! ${err.message}`
+//     })
+// }
 
-function handleDoc(d){
+// function handleDoc(d){
     
-    if(!d.exists) return false;
+//     if(!d.exists) return false;
 
-    let t = d.data();
-        t.id = d.id;
-    return t;
-}
+//     let t = d.data();
+//         t.id = d.id;
+//     return t;
+// }
 
-function handleQuery(col,byDate,byName){
-    let res = col.docs.map(q => {
-        let f = q.data();
-        f.id = q.id
-        return f
-    })
-    if(byDate){
-        res = res.sort((a,b)=>b.createdAt._seconds-a.createdAt._seconds)
-    }
-    if(byName){
-        res = res.sort((a,b)=>sortableText(b.name) > sortableText(a.name) ? -1 : 0)
-    }
-    return res
-}
+// function handleQuery(col,byDate,byName){
+//     let res = col.docs.map(q => {
+//         let f = q.data();
+//         f.id = q.id
+//         return f
+//     })
+//     if(byDate){
+//         res = res.sort((a,b)=>b.createdAt._seconds-a.createdAt._seconds)
+//     }
+//     if(byName){
+//         res = res.sort((a,b)=>sortableText(b.name) > sortableText(a.name) ? -1 : 0)
+//     }
+//     return res
+// }
 
-function devlog(v) {
-    if (process.env.develop == 'true') {
-        console.log(v)
-    } else {
-        // push to telegram notifications
-    }
-}
+// function devlog(v) {
+//     if (process.env.develop == 'true') {
+//         console.log(v)
+//     } else {
+//         // push to telegram notifications
+//     }
+// }
 
-module.exports = {
-    devlog,
-    handleQuery,
-    handleDoc,
-    handleError
-};
+// module.exports = {
+//     devlog,
+//     handleQuery,
+//     handleDoc,
+//     handleError
+// };
 
