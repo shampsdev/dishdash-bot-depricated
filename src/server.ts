@@ -1,3 +1,6 @@
+import express from 'express';
+import axios from 'axios';
+
 let bot_url = process.env.bot_url;
 let api_url = process.env.api_url;
 let frontend_url = process.env.frontend_url;
@@ -8,16 +11,14 @@ const token = process.env.bot_token;
 const bot_username = process.env.bot_username;
 const report_chat_id = process.env.report_chat_id; // ID чата для пересылки сообщений
 
-var express = require('express');
 export var router = express.Router();
-var axios = require('axios');
 
 // Very bad practice, but works. Just put all of the bot stuff in another file.
 let sessionStates = {};
 
-const { devlog, handleError } = require('./common.js');
+import { devlog, handleError } from './shared';
 
-const { sendMessage, getUserProfilePicture } = require('./methods.js');
+import { sendMessage, getUserProfilePicture } from './telegram';
 
 setTimeout(function () {
   axios
@@ -28,7 +29,7 @@ setTimeout(function () {
       console.log(`${host} hook set on ${bot_url}`);
     })
     .catch((err) => {
-      handleError(err);
+      // handleError(err);
     });
 }, 1000);
 
@@ -49,7 +50,8 @@ router.get(`/app`, (req, res) => {
 
 router.get(`/avatar`, (req, res) => {
   res.json({
-    url: getUserProfilePicture(req.params.user_id),
+    // @ts-ignore
+    url: getUserProfilePicture(req.params.user_id, undefined),
   });
 });
 
