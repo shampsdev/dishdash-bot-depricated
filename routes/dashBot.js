@@ -205,7 +205,7 @@ router.post(`/hook`, (req, res) => {
                   description: `Приглашение в комнату ${data.data.id}`,
                   is_personal: false,
                   caption: `Не знаете, куда пойти? Давайте подберем вам место! (инвайт в комнату ${data.data.id})`,
-                  thumbnail_url: `${bot_url}/dash/cover.jpg`,
+                  thumbnail_url: `${bot_url}/cover.jpg`,
                   reply_markup: {
                     inline_keyboard: [
                       [
