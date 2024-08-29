@@ -200,7 +200,7 @@ router.post(`/hook`, (req, res) => {
                 {
                   type: `photo`,
                   id: `app2`,
-                  photo_url: `${bot_url}/images/dash/cover.jpg`,
+                  photo_url: `${bot_url}/cover.jpg`,
                   title: data.data.id,
                   description: `Приглашение в комнату ${data.data.id}`,
                   is_personal: false,
