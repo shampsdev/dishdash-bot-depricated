@@ -74,8 +74,6 @@ router.post(`/hook`, (req, res) => {
   if (req.body.message) {
     let message = req.body.message;
     let chat_id = message.chat.id;
-  
-    console.log(sessionStates[chat_id])
 
     if (!sessionStates[chat_id]) {
       sessionStates[chat_id] = { reportMode: false };
@@ -90,14 +88,20 @@ router.post(`/hook`, (req, res) => {
         currentSession.reportMode = false;
 
         if (report_chat_id === undefined) {
-          console.log("`report_chat_id` is undefined. Check envs to turn on reports.");
+          console.log(
+            '`report_chat_id` is undefined. Check envs to turn on reports.'
+          );
         } else {
           let reportTime = new Date().toLocaleString();
 
           sendMessage(
             {
               chat_id: reportChatId,
-              text: `⚠️ <b>Репорт от пользователя:</b>\n\n<b>Имя:</b> ${message.from.first_name} ${message.from.last_name || ''}\n<b>Юзернейм:</b> @${message.from.username || 'нет юзернейма'}\n<b>Chat ID:</b> ${chat_id}\n<b>Время обращения:</b> ${reportTime}\n\n<b>Сообщение:</b>\n${text}`,
+              text: `⚠️ <b>Репорт от пользователя:</b>\n\n<b>Имя:</b> ${
+                message.from.first_name
+              } ${message.from.last_name || ''}\n<b>Юзернейм:</b> @${
+                message.from.username || 'нет юзернейма'
+              }\n<b>Chat ID:</b> ${chat_id}\n<b>Время обращения:</b> ${reportTime}\n\n<b>Сообщение:</b>\n${text}`,
               parse_mode: 'HTML',
             },
             'sendMessage',
@@ -118,7 +122,7 @@ router.post(`/hook`, (req, res) => {
         if (message.from.last_name) {
           fullName += ` ${message.from.last_name}`;
         }
-  
+
         sendMessage(
           {
             chat_id: chat_id,
@@ -128,6 +132,34 @@ router.post(`/hook`, (req, res) => {
           'sendMessage',
           token
         );
+      } else if (text.split(' ')[0] === '/join') {
+        axios
+          .post(`${api_url}/api/v1/lobbies`, {
+            location: {
+              lat: Number(text.split(' ')[1]),
+              lon: Number(text.split(' ')[2]),
+            },
+          })
+          .then((data) => {
+            sendMessage(
+              {
+                chat_id: chat_id,
+                text: `Не знаете, куда пойти? Давайте подберем вам место! (инвайт в комнату ${data.data.id})`,
+                reply_markup: {
+                  inline_keyboard: [
+                    [
+                      {
+                        text: 'В лобби!',
+                        url: `https://t.me/${bot_username}/app?startapp=${data.data.id}`,
+                      },
+                    ],
+                  ],
+                },
+              },
+              null, // Set `ep` to null to use 'sendMessage' endpoint
+              token
+            );
+          });
       } else if (text === '/help') {
         sendMessage(
           {
@@ -142,6 +174,7 @@ router.post(`/hook`, (req, res) => {
         sendMessage(
           {
             chat_id: chat_id,
+            photo_url: `${bot_url}/cover.jpg`,
             text: 'Теперь отправьте сообщение, которое вы хотите сообщить администрации.',
           },
           'sendMessage',
@@ -159,7 +192,6 @@ router.post(`/hook`, (req, res) => {
       }
     }
   }
-   
 
   if (req.body.inline_query) {
     let q = req.body.inline_query;
@@ -185,8 +217,7 @@ router.post(`/hook`, (req, res) => {
     } else {
       let coords = q.location;
       axios
-        .post(`${api_url}/api/v1/lobbies/find`, {
-          dist: 10,
+        .post(`${api_url}/api/v1/lobbies`, {
           location: {
             lat: coords.latitude,
             lon: coords.longitude,
