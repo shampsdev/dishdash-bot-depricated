@@ -7,16 +7,20 @@ on:
     branches: [ "main", "dev" ]
 
 jobs:
-
   build:
-
     runs-on: ubuntu-22.04
 
     steps:
-    - name: Set short git commit SHA
-      run: |
-        echo "CI test complited"
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-    # - uses: actions/checkout@v4
-    # - name: Build docker image
-    #   run: docker-compose -f docker-compose.yaml build
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '20'
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Run lint
+      run: npm run lint
